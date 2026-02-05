@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +31,7 @@
   };
 
   outputs =
-    { self, nixpkgs, disko, home-manager, hyprland, nur, quickshell, ... }@inputs:
+    { self, nixpkgs, nixos-wsl, disko, home-manager, hyprland, nur, quickshell, ... }@inputs:
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
@@ -49,10 +50,10 @@
     in {
 
       nixosConfigurations = {
-        "m8nix" = nixpkgs.lib.nixosSystem {
+        "hermes" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ./configuration.nix
+            ./hermes/configuration.nix
             disko.nixosModules.disko
             home-manager.nixosModules.home-manager
             {
@@ -63,6 +64,23 @@
                 useUserPackages = true;
               };
             }
+            nur.modules.nixos.default
+          ];
+        };
+        "ares" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./ares/configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                inherit extraSpecialArgs;
+                backupFileExtension = "backup";
+                useGlobalPkgs = true;
+                useUserPackages = true;
+              };
+            }
+	    nixos-wsl.nixosModules.default
             nur.modules.nixos.default
           ];
         };
