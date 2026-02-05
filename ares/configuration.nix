@@ -1,81 +1,52 @@
 { config, lib, pkgs, ... }:{
 
-  imports = [ # Include the results of the hardware scan.
-    ./disko-config.nix
-    ./hardware-configuration.nix
-    ./system/gpu.nix
-    ./system/packages.nix
-    ./system/services.nix
-  ];
+  imports = [ ];
 
-  boot = {
-    blacklistedKernelModules = [ "nouveau" ];
-    kernelPackages = pkgs.linuxPackages_latest;
-    loader.efi.canTouchEfiVariables = true;
-    loader.systemd-boot.enable = true;
-    plymouth = {
-      enable = true;
-      theme = "catppuccin-mocha";
-      themePackages = with pkgs; [
-        (catppuccin-plymouth.override {
-          variant = "mocha";
-        })
-      ];
+  wsl = {
+    enable = true;
+    defaultUser = "m8man";
+    interop.register = true;
+    startMenuLaunchers = true;
+    useWindowsDriver = true;
+    wslConf = {
+      automount.root = "/mnt";
+      network.generateHosts = false;
     };
-    consoleLogLevel = 3;
-    initrd = {
-      kernelModules = [ "i915" ];
-      supportedFilesystems = [ "ext4" "btrfs" "xfs" "vfat" ];
-      systemd = {
-        enable = true;
-        services."systemd-ask-password-plymouth" = {
-          wantedBy = [ "initrd.target" ];
-        };
-      };
-      verbose = false;
-    };
-    kernelParams = [
-      "quiet"
-      "splash"
-      "boot.shell_on_fail"
-      "udev.log_priority=3"
-      "rd.systemd.show_status=false"
-      "video=efifb:nobgrt"
-    ];
-    loader.timeout = 0;
   };
-
-  fonts.packages = with pkgs; [ nerd-fonts.fira-code ];
-
-  home-manager = { users.m8man = import ./home/home.nix; };
+  home-manager = { users.m8man = import ../home/home.nix; };
 
   i18n.defaultLocale = "en_US.UTF-8";
-  console = {
-    font = "latercyrheb-sun32";
-    useXkbConfig = true;
-  };
 
-  networking.hostName = "m8nix-mobile";
+  networking.hostName = "ares";
   networking.networkmanager.enable = true;
 
   security.rtkit.enable = true;
 
-  time.timeZone = "Europe/Amsterdam";
+  time.timeZone = "Europe/Berlin";
 
   users.users.m8man = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "docker" ];
     shell = pkgs.fish;
     packages = with pkgs; [ tree ];
   };
+
+  environment.systemPackages = [
+    pkgs.wget
+  ];
+
+  programs = {
+    fish.enable = true;
+    nix-ld.enable = true;
+  };
+
+  nixpkgs.config.allowUnfree = true;
 
   nix.settings = {
     download-buffer-size = 104857600;
     experimental-features = [ "nix-command" "flakes" ];
     trusted-users = [ "root" "m8man" ];
   };
-
-  powerManagement.enable = true;
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
