@@ -1,4 +1,4 @@
-{ inputs, ...}:
+{ inputs, pkgs, ...}:
 {
   imports = [
     ./packages
@@ -10,6 +10,11 @@
     DRIVER = "podman";
     EDITOR = "nvim";
     WINIT_UNIX_BACKEND = "wayland";
+  };
+
+  programs = {
+    eza.enable = true;
+    direnv.enable = true;
   };
 
   home.stateVersion = "25.11";
