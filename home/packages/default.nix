@@ -1,6 +1,6 @@
 { lib, ... }: {
   imports = [
-    ./neovim.nix
+    ./nvim/
     ./scm.nix
     ./shell.nix
     ./tmux.nix
