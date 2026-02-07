@@ -1,6 +1,11 @@
 { inputs, pkgs, ... }:
-{
 
+let
+  lib = inputs.nixpkgs.lib;
+  go-vim = import ./go.nix { inherit inputs pkgs; };
+in
+
+{
   imports = [
     inputs.nvchad4nix.homeManagerModule
   ];
@@ -8,15 +13,21 @@
   programs = {
     neovim.defaultEditor = true;
 
-    nvchad = {
+    nvchad = lib.recursiveUpdate {
       enable = true;
       extraPackages = with pkgs; [
         docker-compose-language-service
         dockerfile-language-server-nodejs
         nixd
         nodePackages.bash-language-server
+        nodePackages.vscode-langservers-extracted
       ];
       hm-activation = true;
+      extraConfig = ''
+        local configs = require("nvchad.configs.lspconfig")
+        local on_attach = configs.on_attach
+        local capabilities = configs.capabilities
+      '';
       extraPlugins = ''
         return {
           {
@@ -101,6 +112,6 @@
           }
         }
       '';
-    };
+    } go-vim;
   };
 }
