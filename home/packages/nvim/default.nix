@@ -2,7 +2,7 @@
 
 let
   lib = inputs.nixpkgs.lib;
-  go-vim = import ./go.nix { inherit inputs pkgs; };
+  go-lsp = import ./lsp/go.nix { inherit inputs pkgs; };
 in
 
 {
@@ -112,6 +112,7 @@ in
           }
         }
       '';
-    } go-vim;
+    } 
+    go-lsp;
   };
 }
