@@ -41,11 +41,11 @@ in
               "TmuxNavigateProcessList",
             },
             keys = {
-              { "<c-h>", "<cmd><C-U>TmuxNaviateLeft<cr>" },
-              { "<c-j>", "<cmd><C-U>TmuxNaviateDown<cr>" },
-              { "<c-k>", "<cmd><C-U>TmuxNaviateUp<cr>" },
-              { "<c-l>", "<cmd><C-U>TmuxNaviateRight<cr>" },
-              { "<c-\\>", "<cmd><C-U>TmuxNaviatePrevious<cr>" },
+              { "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
+              { "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
+              { "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
+              { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
+              { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
             }
           },
           {
