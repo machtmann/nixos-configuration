@@ -8,6 +8,14 @@ let
 
   mergedExtraPackages = lib.concatMap (cfg: cfg.extraPackages) all-lsps;
   mergedLspConfig = lib.concatStringsSep "\n" (map (cfg: cfg.extraConfig) all-lsps);
+
+  navigation-plugins = import ./plugins/navigation.nix { };
+  editing-plugins = import ./plugins/editing.nix { };
+  git-plugins = import ./plugins/git.nix { };
+  languages-plugins = import ./plugins/languages.nix { };
+  all-plugins = [ navigation-plugins editing-plugins git-plugins languages-plugins ];
+
+  mergedPlugins = lib.concatStringsSep "\n" all-plugins;
 in
 {
   imports = [
@@ -37,86 +45,7 @@ in
       '';
       extraPlugins = ''
         return {
-          {
-            "christoomey/vim-tmux-navigator",
-            cmd = {
-              "TmuxNavigateLeft",
-              "TmuxNavigateDown",
-              "TmuxNavigateUp",
-              "TmuxNavigateRight",
-              "TmuxNavigatePreviois",
-              "TmuxNavigateProcessList",
-            },
-            keys = {
-              { "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
-              { "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
-              { "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
-              { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
-              { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
-            }
-          },
-          {
-            "iamcco/markdown-preview.nvim",
-            cmd = {
-              "MarkdownPreviewToggle", 
-              "MarkdownPreview",
-              "MarkdownPreviewStop"
-            },
-            build = "cd app && yarn install",
-            init = function()
-              vim.g.mkdp_filetypes = { "markdown" }
-            end,
-            ft = { "markdown" },
-            keys = {
-              { "<leader-mp>", "<cmd><C-U>MarkdownPreview<cr>", desc = "MarkdownPreview" },
-              { "<leader-mps>", "<cmd><C-U>MarkdownPreviewStop<cr>", desc = "MarkdownPreviewStop" },
-              { "<leader-mpt>", "<cmd><C-U>MarkdownPreviewToggle<cr>", desc = "MarkdownPreviewToggle" },
-            }
-          },
-          {
-            "kdheepak/lazygit.nvim",
-            lazy = true,
-            cmd = {
-              "LazyGit",
-              "LazyGitConfig",
-              "LazyGitCurrentFile",
-              "LazyGitFilter",
-              "LazyGitFilterCurrentFile",
-            },
-            dependencies = {
-              "nvim-lua/plenary.nvim",
-            },
-            keys = {
-              { "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" }
-            }
-          },
-          {
-            "julienvincent/hunk.nvim",
-            cmd = { "DiffEditor" },
-            config = function()
-              require("hunk").setup()
-            end,
-          },
-          {
-            'lucidph3nx/nvim-sops',
-            event = { 'BufEnter' },
-            opts = { }
-          },
-          {
-            "f-person/git-blame.nvim",
-            event = "VeryLazy",
-            opts = {
-              enabled = true,
-              message_template = " <summary> • <date> • <author> • <<sha>>",
-              date_format = "%m-%d-%Y %H:%M:%S",
-              virtual_text_column = 1,
-            }
-          },
-          {
-            'mrcjkb/rustaceanvim',
-            version = '^6',
-            lazy = false,
-          }
+          ${mergedPlugins}
         }
       '';
     };
