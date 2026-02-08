@@ -3,8 +3,12 @@
 let
   lib = inputs.nixpkgs.lib;
   go-lsp = import ./lsp/go.nix { inherit inputs pkgs; };
-in
+  nodejs-lsp = import ./lsp/nodejs.nix { inherit inputs pkgs; };
+  all-lsps = [ go-lsp nodejs-lsp ];
 
+  mergedExtraPackages = lib.concatMap (cfg: cfg.extraPackages) all-lsps;
+  mergedLspConfig = lib.concatStringsSep "\n" (map (cfg: cfg.extraConfig) all-lsps);
+in
 {
   imports = [
     inputs.nvchad4nix.homeManagerModule
@@ -13,20 +17,23 @@ in
   programs = {
     neovim.defaultEditor = true;
 
-    nvchad = lib.recursiveUpdate {
+    nvchad = {
       enable = true;
-      extraPackages = with pkgs; [
-        docker-compose-language-service
-        dockerfile-language-server-nodejs
-        nixd
-        nodePackages.bash-language-server
-        nodePackages.vscode-langservers-extracted
-      ];
+      extraPackages = with pkgs;
+        mergedExtraPackages ++ [
+          docker-compose-language-service
+          dockerfile-language-server-nodejs
+          nixd
+          nodePackages.bash-language-server
+          nodePackages.vscode-langservers-extracted
+        ];
       hm-activation = true;
       extraConfig = ''
         local configs = require("nvchad.configs.lspconfig")
         local on_attach = configs.on_attach
         local capabilities = configs.capabilities
+
+        ${mergedLspConfig}
       '';
       extraPlugins = ''
         return {
@@ -112,7 +119,6 @@ in
           }
         }
       '';
-    } 
-    go-lsp;
+    };
   };
 }
